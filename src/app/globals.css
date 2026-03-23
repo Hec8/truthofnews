@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", sans-serif;
+  --font-playfair: "Playfair Display", serif;
+  --background: #ffffff;
+  --foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --primary: #1a3a6b;
+  --primary-foreground: #ffffff;
+  --accent: #c8a217;
+}
+
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  --primary: #3b6ef6;
+  --primary-foreground: #ffffff;
+  --accent: #f5d65e;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-playfair);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--muted); }
+::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* TipTap Editor */
+.ProseMirror {
+  outline: none;
+  min-height: 300px;
+  padding: 1rem;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  color: #94a3b8;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.ProseMirror h1 { font-size: 2rem; margin-bottom: 1rem; font-family: var(--font-playfair); }
+.ProseMirror h2 { font-size: 1.5rem; margin-bottom: 0.75rem; font-family: var(--font-playfair); }
+.ProseMirror h3 { font-size: 1.25rem; margin-bottom: 0.5rem; font-family: var(--font-playfair); }
+.ProseMirror p { margin-bottom: 1rem; }
+.ProseMirror ul { list-style: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+.ProseMirror ol { list-style: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
+.ProseMirror blockquote {
+  border-left: 4px solid var(--primary);
+  padding-left: 1rem;
+  margin: 1rem 0;
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.ProseMirror strong { font-weight: 700; }
+.ProseMirror em { font-style: italic; }
+.ProseMirror a { color: var(--primary); text-decoration: underline; }
+.ProseMirror img { max-width: 100%; border-radius: 8px; margin: 1rem auto; display: block; }
+.ProseMirror code { background: var(--muted); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.875em; }
+
+/* Article Content Public */
+.article-content h1 { font-size: 2.2rem; margin: 2rem 0 1rem; font-family: var(--font-playfair); }
+.article-content h2 { font-size: 1.7rem; margin: 1.75rem 0 0.75rem; font-family: var(--font-playfair); border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; }
+.article-content h3 { font-size: 1.35rem; margin: 1.5rem 0 0.5rem; font-family: var(--font-playfair); }
+.article-content p { margin-bottom: 1.25rem; font-size: 1.05rem; line-height: 1.8; }
+.article-content ul { list-style: disc; padding-left: 2rem; margin-bottom: 1.25rem; }
+.article-content ol { list-style: decimal; padding-left: 2rem; margin-bottom: 1.25rem; }
+.article-content li { margin-bottom: 0.4rem; }
+.article-content blockquote {
+  border-left: 4px solid #1a3a6b;
+  padding: 0.75rem 1.25rem;
+  margin: 1.5rem 0;
+  background: #eff4ff;
+  border-radius: 0 8px 8px 0;
+  font-style: italic;
+  color: #374151;
+}
+.dark .article-content blockquote { background: #1e293b; color: #94a3b8; }
+.article-content a { color: #1a3a6b; text-decoration: underline; }
+.dark .article-content a { color: #6090fa; }
+.article-content img { max-width: 100%; border-radius: 8px; margin: 1.5rem auto; display: block; }
+.article-content strong { font-weight: 700; }
+

@@ -1,0 +1,94 @@
+// ============================================================
+// RÈGLES DE SÉCURITÉ FIRESTORE – Blog Tonton
+// Copiez ces règles dans Firebase Console > Firestore > Règles
+// ============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Fonctions utilitaires ────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // UID admin bootstrap (synchronisé avec NEXT_PUBLIC_ADMIN_UID)
+    // Remplacez cette valeur si vous changez d'admin principal.
+    function isBootstrapAdmin() {
+      return isAuthenticated() && request.auth.uid == 'QDN1xxFRVYPR021k1sqOpLtOMBg2';
+    }
+
+    function isAdmin() {
+      return isBootstrapAdmin() || (
+        isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      );
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // ─── Collection : articles ────────────────────────────
+    match /articles/{articleId} {
+      // Lecture : tout le monde peut lire les articles publiés
+      allow read: if resource.data.status == 'published' || isAdmin();
+
+      // Création : admin uniquement
+      allow create: if isAdmin() &&
+        request.resource.data.keys().hasAll(['title', 'slug', 'content', 'category', 'status', 'authorId']) &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() >= 3 &&
+        request.resource.data.status in ['draft', 'published'];
+
+      // Modification : admin uniquement
+      allow update: if isAdmin();
+
+      // Suppression : admin uniquement
+      allow delete: if isAdmin();
+    }
+
+    // ─── Collection : comments ────────────────────────────
+    match /comments/{commentId} {
+      // Lecture : tout le monde
+      allow read: if true;
+
+      // Création : utilisateur connecté
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.content is string &&
+        request.resource.data.content.size() >= 1 &&
+        request.resource.data.content.size() <= 1000;
+
+      // Modification : propriétaire ou admin
+      allow update: if isOwner(resource.data.userId) || isAdmin();
+
+      // Suppression : propriétaire ou admin
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    // ─── Collection : users ───────────────────────────────
+    match /users/{userId} {
+      // Lecture : propriétaire ou admin
+      allow read: if isOwner(userId) || isAdmin();
+
+      // Création : lors de l'inscription (userId == auth.uid)
+      allow create: if isAuthenticated() &&
+        request.auth.uid == userId &&
+        request.resource.data.keys().hasAll(['uid', 'email', 'displayName', 'role']) &&
+        (
+          request.resource.data.role == 'user' ||
+          (isBootstrapAdmin() && request.resource.data.role == 'admin')
+        );
+
+      // Modification : propriétaire (champs limités) ou admin
+      allow update: if (isOwner(userId) &&
+        !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'uid'])) ||
+        isAdmin();
+
+      // Suppression : admin uniquement
+      allow delete: if isAdmin();
+    }
+  }
+}
