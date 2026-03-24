@@ -34,13 +34,13 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
           href={`/article/${featuredArticle.slug}`}
           className="lg:col-span-2 group relative rounded-2xl overflow-hidden shadow-lg block"
         >
-          <div className="relative h-[350px] sm:h-[420px]">
+          <div className="relative h-[350px] sm:h-[420px] lg:h-[500px]">
             {featuredArticle.imageUrl ? (
               <Image
                 src={featuredArticle.imageUrl}
                 alt={featuredArticle.title}
                 fill
-                className="object-cover lg:object-contain group-hover:scale-105 transition-transform duration-700 bg-[#0f172a]"
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
                 priority
               />
             ) : (
