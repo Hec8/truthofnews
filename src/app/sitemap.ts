@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Pages de catégories
   const categories = [
     "politique", "gouvernement", "elections", "economie",
-    "societe", "international", "securite", "culture",
+    "societe", "international", "sports", "culture",
   ];
   const categoryPages: MetadataRoute.Sitemap = categories.map((cat) => ({
     url: `${baseUrl}/categorie/${cat}`,

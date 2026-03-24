@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, TrendingUp } from "lucide-react";
-import { Article, CATEGORIES } from "@/types";
+import { Article, getCategoryById } from "@/types";
 import { formatAuthorName, formatDate } from "@/lib/utils";
 
 interface HeroSectionProps {
@@ -24,7 +24,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
     );
   }
 
-  const featuredCategory = CATEGORIES.find((c) => c.id === featuredArticle.category);
+  const featuredCategory = getCategoryById(featuredArticle.category);
 
   return (
     <section className="mb-12 animate-fade-in">
@@ -85,7 +85,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
         {/* Articles secondaires */}
         <div className="flex flex-col gap-4">
           {sideArticles.slice(0, 3).map((article) => {
-            const cat = CATEGORIES.find((c) => c.id === article.category);
+            const cat = getCategoryById(article.category);
             return (
               <Link
                 key={article.id}

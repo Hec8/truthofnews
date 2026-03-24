@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getArticlesByCategory, getPopularArticles, getRecentArticles } from "@/services/articleService";
-import { CATEGORIES, type ArticleCategory } from "@/types";
+import { CATEGORIES, getCategoryById, type ArticleCategory } from "@/types";
 import ArticleCard from "@/components/common/ArticleCard";
 import Sidebar from "@/components/layout/Sidebar";
 
@@ -13,7 +13,7 @@ interface CategoryPageProps {
 
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const category = CATEGORIES.find((c) => c.id === slug);
+  const category = getCategoryById(slug);
   if (!category) return { title: "Catégorie non trouvée" };
   return {
     title: `${category.label} – Truth of News`,
@@ -25,7 +25,12 @@ export const dynamic = "force-dynamic";
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const category = CATEGORIES.find((c) => c.id === slug);
+
+  if (slug === "securite") {
+    redirect("/categorie/societe");
+  }
+
+  const category = getCategoryById(slug);
 
   if (!category) notFound();
 

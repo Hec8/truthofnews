@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Clock, Eye, MessageCircle } from "lucide-react";
-import { Article, CATEGORIES } from "@/types";
+import { Article, getCategoryById } from "@/types";
 import { formatDate, getReadingTime } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export default function ArticleCard({
   variant = "default",
   className,
 }: ArticleCardProps) {
-  const category = CATEGORIES.find((c) => c.id === article.category);
+  const category = getCategoryById(article.category);
   const readingTime = getReadingTime(article.content || article.excerpt);
   const publishDate = article.publishedAt || article.createdAt;
 

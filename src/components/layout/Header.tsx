@@ -44,6 +44,7 @@ export default function Header() {
     { href: "/categorie/economie", label: "Économie" },
     { href: "/categorie/societe", label: "Société" },
     { href: "/categorie/international", label: "International" },
+    { href: "/categorie/sports", label: "Sports" },
   ];
 
   return (

@@ -40,6 +40,10 @@ const defaultForm: ArticleFormData = {
   tags: [],
 };
 
+function normalizeEditorCategory(category: ArticleCategory): ArticleCategory {
+  return category === "securite" ? "societe" : category;
+}
+
 export default function ArticleEditor({ article }: ArticleEditorProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -52,7 +56,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
           content: article.content,
           imageUrl: article.imageUrl,
           imageAlt: article.imageAlt || "",
-          category: article.category,
+          category: normalizeEditorCategory(article.category),
           status: article.status,
           tags: article.tags || [],
         }

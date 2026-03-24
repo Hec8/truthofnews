@@ -10,7 +10,7 @@ import {
 import CommentSection from "@/components/article/CommentSection";
 import ArticleViewTracker from "@/components/article/ArticleViewTracker";
 import Sidebar from "@/components/layout/Sidebar";
-import { CATEGORIES } from "@/types";
+import { getCategoryById } from "@/types";
 import { formatAuthorName, formatDate, getReadingTime } from "@/lib/utils";
 import Link from "next/link";
 
@@ -86,7 +86,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (!article) notFound();
 
-  const category = CATEGORIES.find((c) => c.id === article.category);
+  const category = getCategoryById(article.category);
   const publishDate = article.publishedAt || article.createdAt;
   const readingTime = getReadingTime(article.content);
   const authorName = formatAuthorName(article.authorName);

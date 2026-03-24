@@ -171,11 +171,16 @@ export async function getArticlesByCategory(
   lastDoc?: QueryDocumentSnapshot | null,
   pageSize = ARTICLES_PER_PAGE
 ): Promise<{ articles: Article[]; lastDoc: QueryDocumentSnapshot | null }> {
+  const categoryFilter =
+    category === "societe"
+      ? where("category", "in", ["societe", "securite"])
+      : where("category", "==", category);
+
   try {
     let q = query(
       collection(db, "articles"),
       where("status", "==", "published"),
-      where("category", "==", category),
+      categoryFilter,
       orderBy("publishedAt", "desc"),
       limit(pageSize)
     );
@@ -184,7 +189,7 @@ export async function getArticlesByCategory(
       q = query(
         collection(db, "articles"),
         where("status", "==", "published"),
-        where("category", "==", category),
+        categoryFilter,
         orderBy("publishedAt", "desc"),
         startAfter(lastDoc),
         limit(pageSize)
@@ -199,7 +204,7 @@ export async function getArticlesByCategory(
       const fallback = query(
         collection(db, "articles"),
         where("status", "==", "published"),
-        where("category", "==", category),
+        categoryFilter,
         limit(pageSize)
       );
       const fallbackSnapshot = await getDocs(fallback);
@@ -216,7 +221,7 @@ export async function getArticlesByCategory(
     const fallback = query(
       collection(db, "articles"),
       where("status", "==", "published"),
-      where("category", "==", category),
+      categoryFilter,
       limit(pageSize)
     );
     const snapshot = await getDocs(fallback);

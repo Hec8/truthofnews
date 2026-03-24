@@ -13,6 +13,8 @@ export type ArticleCategory =
   | "economie"
   | "societe"
   | "international"
+  | "sports"
+  // Catégorie historique conservée pour compatibilité des anciennes données
   | "securite"
   | "culture";
 
@@ -29,9 +31,14 @@ export const CATEGORIES: Category[] = [
   { id: "economie", label: "Économie", color: "#008751" },
   { id: "societe", label: "Société", color: "#7c3aed" },
   { id: "international", label: "International", color: "#0891b2" },
-  { id: "securite", label: "Sécurité", color: "#9f1239" },
+  { id: "sports", label: "Sports", color: "#ea580c" },
   { id: "culture", label: "Culture", color: "#c8a217" },
 ];
+
+export function getCategoryById(categoryId: string): Category | undefined {
+  const normalized = categoryId === "securite" ? "societe" : categoryId;
+  return CATEGORIES.find((c) => c.id === normalized);
+}
 
 export interface Article {
   id: string;

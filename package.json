@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "create-admin": "node --env-file=.env.local scripts/create-admin.mjs"
+    "create-admin": "node --env-file=.env.local scripts/create-admin.mjs",
+    "migrate-category": "node --env-file=.env.local scripts/migrate-security-to-societe.mjs"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",

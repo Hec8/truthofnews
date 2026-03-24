@@ -9,7 +9,7 @@ export default function CategorySection() {
     economie: "📈",
     societe: "👥",
     international: "🌍",
-    securite: "🛡️",
+    sports: "⚽",
     culture: "🎭",
   };
 

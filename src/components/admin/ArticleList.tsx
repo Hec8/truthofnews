@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Edit, Trash2, Eye, EyeOff, Search, Plus, ExternalLink } from "lucide-react";
-import { Article, CATEGORIES } from "@/types";
+import { Article, getCategoryById } from "@/types";
 import { deleteArticle, updateArticle } from "@/services/articleService";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -121,7 +121,7 @@ export default function ArticleList({ articles, onRefresh }: ArticleListProps) {
               </thead>
               <tbody className="divide-y divide-[#f1f5f9] dark:divide-[#334155]">
                 {filtered.map((article) => {
-                  const cat = CATEGORIES.find((c) => c.id === article.category);
+                  const cat = getCategoryById(article.category);
                   return (
                     <tr key={article.id} className="hover:bg-[#f8fafc] dark:hover:bg-[#0f172a] transition-colors">
                       <td className="px-4 py-4">
