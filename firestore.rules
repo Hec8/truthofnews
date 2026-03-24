@@ -42,8 +42,13 @@ service cloud.firestore {
         request.resource.data.title.size() >= 3 &&
         request.resource.data.status in ['draft', 'published'];
 
-      // Modification : admin uniquement
-      allow update: if isAdmin();
+      // Modification : admin, ou incrément public sécurisé des vues
+      allow update: if isAdmin() || (
+        resource.data.status == 'published' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']) &&
+        request.resource.data.viewCount is int &&
+        request.resource.data.viewCount == resource.data.viewCount + 1
+      );
 
       // Suppression : admin uniquement
       allow delete: if isAdmin();

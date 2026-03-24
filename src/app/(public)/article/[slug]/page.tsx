@@ -6,9 +6,9 @@ import {
   getArticleBySlug,
   getRecentArticles,
   getPopularArticles,
-  incrementViewCount,
 } from "@/services/articleService";
 import CommentSection from "@/components/article/CommentSection";
+import ArticleViewTracker from "@/components/article/ArticleViewTracker";
 import Sidebar from "@/components/layout/Sidebar";
 import { CATEGORIES } from "@/types";
 import { formatAuthorName, formatDate, getReadingTime } from "@/lib/utils";
@@ -86,9 +86,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   if (!article) notFound();
 
-  // Incrémenter les vues (best effort)
-  incrementViewCount(article.id).catch(console.warn);
-
   const category = CATEGORIES.find((c) => c.id === article.category);
   const publishDate = article.publishedAt || article.createdAt;
   const readingTime = getReadingTime(article.content);
@@ -99,6 +96,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Article principal */}
         <article className="lg:col-span-2">
+          <ArticleViewTracker articleId={article.id} />
+
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-[#94a3b8] mb-6">
             <Link href="/" className="hover:text-[#1a3a6b] dark:hover:text-[#6090fa] transition-colors">
