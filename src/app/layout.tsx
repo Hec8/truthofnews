@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   keywords: ["Bénin", "politique", "actualités", "Cotonou", "élections", "gouvernement"],
   authors: [{ name: "Truth of News" }],
   creator: "Truth of News",
-  metadataBase: new URL("https://blogtonton.bj"),
+  metadataBase: new URL("https://truthofnews.vercel.app"),
   openGraph: {
     type: "website",
     locale: "fr_BJ",
-    url: "https://blogtonton.bj",
+    url: "https://truthofnews.vercel.app",
     siteName: "Truth of News",
     title: "Truth of News – Actualités Politiques Bénin",
     description: "Votre source d'information fiable sur l'actualité politique du Bénin.",
@@ -48,6 +48,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr" suppressHydrationWarning className={`${inter.variable} ${playfair.variable}`}>
+    <head>
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} disableTransitionOnChange>
           <AuthProvider>
