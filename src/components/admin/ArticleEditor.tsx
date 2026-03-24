@@ -96,6 +96,10 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
     try {
       const finalSlug = form.slug || generateUniqueSlug(form.title);
       const data = { ...form, slug: finalSlug, status };
+      const authorName = (user.displayName || "").trim();
+      const publicAuthorName = !authorName || authorName.toLowerCase() === "admin"
+        ? "La rédaction"
+        : authorName;
 
       if (article) {
         await updateArticle(article.id, data, article.status);
@@ -104,7 +108,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
         await createArticle(
           data,
           user.uid,
-          user.displayName || "Admin"
+          publicAuthorName
         );
         toast.success(status === "published" ? "Article publié !" : "Brouillon enregistré !");
       }

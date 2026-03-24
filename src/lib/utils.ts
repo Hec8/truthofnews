@@ -59,6 +59,12 @@ export function formatRelativeDate(date: Date | string | number | TimestampLike 
   return formatDistanceToNow(d, { addSuffix: true, locale: fr });
 }
 
+export function formatAuthorName(name: string | null | undefined): string {
+  const safe = (name ?? "").trim();
+  if (!safe) return "La rédaction";
+  return safe.toLowerCase() === "admin" ? "La rédaction" : safe;
+}
+
 export function truncateText(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength).trimEnd() + "…";

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, TrendingUp } from "lucide-react";
 import { Article, CATEGORIES } from "@/types";
-import { formatDate } from "@/lib/utils";
+import { formatAuthorName, formatDate } from "@/lib/utils";
 
 interface HeroSectionProps {
   featuredArticle: Article | null;
@@ -40,7 +40,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
                 src={featuredArticle.imageUrl}
                 alt={featuredArticle.title}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                className="object-cover lg:object-contain group-hover:scale-105 transition-transform duration-700 bg-[#0f172a]"
                 priority
               />
             ) : (
@@ -71,7 +71,7 @@ export default function HeroSection({ featuredArticle, sideArticles }: HeroSecti
             </p>
             <div className="flex items-center justify-between">
               <div className="text-white/60 text-xs">
-                Par <span className="text-white/80 font-medium">{featuredArticle.authorName}</span>
+                Par <span className="text-white/80 font-medium">{formatAuthorName(featuredArticle.authorName)}</span>
                 {" · "}
                 {formatDate(featuredArticle.publishedAt as Date || featuredArticle.createdAt as Date)}
               </div>

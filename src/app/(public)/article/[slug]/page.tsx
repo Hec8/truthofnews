@@ -11,7 +11,7 @@ import {
 import CommentSection from "@/components/article/CommentSection";
 import Sidebar from "@/components/layout/Sidebar";
 import { CATEGORIES } from "@/types";
-import { formatDate, getReadingTime } from "@/lib/utils";
+import { formatAuthorName, formatDate, getReadingTime } from "@/lib/utils";
 import Link from "next/link";
 
 interface ArticlePageProps {
@@ -62,7 +62,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       images: article.imageUrl ? [{ url: article.imageUrl }] : [],
       type: "article",
       publishedTime: toIsoDate(article.publishedAt),
-      authors: [article.authorName],
+      authors: [formatAuthorName(article.authorName)],
     },
     twitter: {
       card: "summary_large_image",
@@ -92,6 +92,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   const category = CATEGORIES.find((c) => c.id === article.category);
   const publishDate = article.publishedAt || article.createdAt;
   const readingTime = getReadingTime(article.content);
+  const authorName = formatAuthorName(article.authorName);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -139,7 +140,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <div className="flex flex-wrap items-center gap-4 text-sm text-[#64748b] dark:text-[#94a3b8] mb-6 pb-6 border-b border-[#e2e8f0] dark:border-[#334155]">
             <span className="flex items-center gap-1.5">
               <User className="h-4 w-4" />
-              {article.authorName}
+              {authorName}
             </span>
             <span className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
