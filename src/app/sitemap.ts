@@ -3,6 +3,8 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { CATEGORIES } from "@/types";
 
+export const revalidate = 3600;
+
 type FirestoreDateLike =
   | Date
   | { toDate?: () => Date; seconds?: number; nanoseconds?: number }
