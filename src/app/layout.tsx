@@ -5,6 +5,8 @@ import { Toaster } from "react-hot-toast";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "https://truthofnews.vercel.app").replace(/\/$/, "");
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -27,11 +29,17 @@ export const metadata: Metadata = {
   keywords: ["Bénin", "politique", "actualités", "Cotonou", "élections", "gouvernement"],
   authors: [{ name: "Truth of News" }],
   creator: "Truth of News",
-  metadataBase: new URL("https://truthofnews.vercel.app"),
+  metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
   openGraph: {
     type: "website",
     locale: "fr_BJ",
-    url: "https://truthofnews.vercel.app",
+    url: siteUrl,
     siteName: "Truth of News",
     title: "Truth of News – Actualités Politiques Bénin",
     description: "Votre source d'information fiable sur l'actualité politique du Bénin.",
