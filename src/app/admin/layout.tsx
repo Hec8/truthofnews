@@ -39,7 +39,7 @@ function AdminSidebar({ pathname, onClose, onLogout, userName }: AdminSidebarPro
       <div className="p-6 border-b border-[#334155]">
         <Link href="/admin" className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-lg bg-[#3b6ef6] flex items-center justify-center text-white font-bold font-serif">
-            B
+            T
           </div>
           <div>
             <span className="text-white font-bold font-serif text-sm">Truth of News</span>
@@ -116,7 +116,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] dark:bg-[#0f172a]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#1a3a6b] flex items-center justify-center text-white font-bold text-xl font-serif animate-pulse">
-            B
+            T
           </div>
           <p className="text-[#64748b] text-sm">Chargement...</p>
         </div>

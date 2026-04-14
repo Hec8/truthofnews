@@ -33,9 +33,13 @@ export async function addComment(
   });
 
   // Incrémenter le compteur de commentaires de l'article
-  await updateDoc(doc(db, "articles", articleId), {
-    commentCount: increment(1),
-  });
+  try {
+    await updateDoc(doc(db, "articles", articleId), {
+      commentCount: increment(1),
+    });
+  } catch (error) {
+    console.warn("Impossible d'incrémenter commentCount:", error);
+  }
 
   return docRef.id;
 }
@@ -46,9 +50,13 @@ export async function deleteComment(
   articleId: string
 ): Promise<void> {
   await deleteDoc(doc(db, "comments", commentId));
-  await updateDoc(doc(db, "articles", articleId), {
-    commentCount: increment(-1),
-  });
+  try {
+    await updateDoc(doc(db, "articles", articleId), {
+      commentCount: increment(-1),
+    });
+  } catch (error) {
+    console.warn("Impossible de décrémenter commentCount:", error);
+  }
 }
 
 // ─── Écouter les commentaires en temps réel ───────────────

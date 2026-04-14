@@ -1,20 +1,27 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import TextStyle from "@tiptap/extension-text-style";
+import Color from "@tiptap/extension-color";
+import FontFamily from "@tiptap/extension-font-family";
+import { uploadArticleImage } from "@/services/storageService";
 import {
   Bold, Italic, List, ListOrdered, Quote, Heading1, Heading2, Heading3,
-  Link2, Image as ImageIcon, Undo, Redo, Strikethrough, Code
+  Link2, Image as ImageIcon, Undo, Redo, Strikethrough, Code, Upload
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
+  articleSlug?: string;
 }
 
 function ToolbarButton({
@@ -49,11 +56,18 @@ export default function RichTextEditor({
   content,
   onChange,
   placeholder = "Rédigez votre article ici...",
+  articleSlug,
 }: RichTextEditorProps) {
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit,
+      TextStyle,
+      Color,
+      FontFamily.configure({ types: ["textStyle"] }),
       Image.configure({ inline: false, allowBase64: true }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: "text-blue-600 underline" } }),
       Placeholder.configure({ placeholder }),
@@ -76,10 +90,68 @@ export default function RichTextEditor({
     if (url) editor.chain().focus().setImage({ src: url }).run();
   };
 
+  const handleInlineImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Seules les images sont acceptées");
+      e.target.value = "";
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("L'image ne doit pas dépasser 5 MB");
+      e.target.value = "";
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const safeSlug = articleSlug?.trim() || `article-${Date.now()}`;
+      const url = await uploadArticleImage(file, `${safeSlug}-inline`);
+      editor.chain().focus().setImage({ src: url, alt: file.name }).run();
+      toast.success("Image insérée dans l'article");
+    } catch {
+      toast.error("Erreur lors de l'upload de l'image");
+    } finally {
+      setUploadingImage(false);
+      e.target.value = "";
+    }
+  };
+
   return (
     <div className="border border-[#e2e8f0] dark:border-[#334155] rounded-xl overflow-hidden bg-white dark:bg-[#1e293b]">
       {/* Barre d'outils */}
       <div className="flex flex-wrap gap-1 p-2 border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a]">
+        <select
+          className="h-9 px-2 rounded-md border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] text-xs text-[#374151] dark:text-[#d1d5db]"
+          defaultValue=""
+          onChange={(e) => {
+            const value = e.target.value;
+            if (!value) {
+              editor.chain().focus().unsetFontFamily().run();
+            } else {
+              editor.chain().focus().setFontFamily(value).run();
+            }
+          }}
+          title="Police"
+        >
+          <option value="">Police</option>
+          <option value="Inter">Inter</option>
+          <option value="Arial">Arial</option>
+          <option value="Georgia">Georgia</option>
+          <option value="Times New Roman, serif">Times New Roman</option>
+          <option value="Courier New, monospace">Courier New</option>
+        </select>
+
+        <input
+          type="color"
+          className="h-9 w-10 p-1 rounded-md border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] cursor-pointer"
+          title="Couleur du texte"
+          onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+        />
+
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           active={editor.isActive("heading", { level: 1 })}
@@ -165,6 +237,12 @@ export default function RichTextEditor({
         <ToolbarButton onClick={addImage} title="Insérer une image">
           <ImageIcon className="h-4 w-4" />
         </ToolbarButton>
+        <ToolbarButton
+          onClick={() => fileInputRef.current?.click()}
+          title="Uploader une image"
+        >
+          <Upload className="h-4 w-4" />
+        </ToolbarButton>
 
         <div className="w-px h-8 bg-[#e2e8f0] dark:bg-[#334155] mx-1 self-center" />
 
@@ -181,6 +259,20 @@ export default function RichTextEditor({
           <Redo className="h-4 w-4" />
         </ToolbarButton>
       </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleInlineImageUpload}
+      />
+
+      {uploadingImage && (
+        <div className="px-3 py-1.5 text-xs text-[#64748b] border-b border-[#e2e8f0] dark:border-[#334155] bg-[#f8fafc] dark:bg-[#0f172a]">
+          Upload de l&apos;image en cours...
+        </div>
+      )}
 
       {/* Zone d'édition */}
       <EditorContent

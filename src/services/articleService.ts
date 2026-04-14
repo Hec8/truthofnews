@@ -44,6 +44,21 @@ function sortByPublishedOrCreatedDesc(articles: Article[]): Article[] {
   });
 }
 
+function mergeAndSortArticles(
+  primary: Article[],
+  fallback: Article[],
+  maxCount: number
+): Article[] {
+  const map = new Map<string, Article>();
+  for (const article of [...primary, ...fallback]) {
+    if (!map.has(article.id)) {
+      map.set(article.id, article);
+    }
+  }
+
+  return sortByPublishedOrCreatedDesc(Array.from(map.values())).slice(0, maxCount);
+}
+
 // ─── Créer un article ─────────────────────────────────────
 export async function createArticle(
   data: ArticleFormData,
@@ -74,8 +89,16 @@ export async function updateArticle(
     updatedAt: serverTimestamp(),
   };
 
-  if (data.status === "published" && previousStatus !== "published") {
-    updateData.publishedAt = serverTimestamp();
+  if (data.status === "published") {
+    if (previousStatus !== "published") {
+      updateData.publishedAt = serverTimestamp();
+    } else {
+      // Répare les anciens articles publiés qui n'ont pas de publishedAt
+      const current = await getDoc(doc(db, "articles", id));
+      if (current.exists() && !current.data().publishedAt) {
+        updateData.publishedAt = serverTimestamp();
+      }
+    }
   }
 
   await updateDoc(doc(db, "articles", id), updateData);
@@ -146,6 +169,24 @@ export async function getPublishedArticles(
       );
       return { articles: fallbackArticles, lastDoc: null };
     }
+    // Certains anciens articles publiés peuvent ne pas avoir publishedAt
+    // et être exclus de orderBy("publishedAt").
+    if (!lastDoc && articles.length < pageSize) {
+      const fallback = query(
+        collection(db, "articles"),
+        where("status", "==", "published"),
+        limit(Math.max(pageSize * 3, 30))
+      );
+      const fallbackSnapshot = await getDocs(fallback);
+      const fallbackArticles = fallbackSnapshot.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as Article)
+      );
+
+      const merged = mergeAndSortArticles(articles, fallbackArticles, pageSize);
+      const newLastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
+      return { articles: merged, lastDoc: newLastDoc };
+    }
+
     const newLastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
     return { articles, lastDoc: newLastDoc };
   } catch (error) {
@@ -213,6 +254,23 @@ export async function getArticlesByCategory(
       );
       return { articles: fallbackArticles, lastDoc: null };
     }
+    if (!lastDoc && articles.length < pageSize) {
+      const fallback = query(
+        collection(db, "articles"),
+        where("status", "==", "published"),
+        categoryFilter,
+        limit(Math.max(pageSize * 3, 30))
+      );
+      const fallbackSnapshot = await getDocs(fallback);
+      const fallbackArticles = fallbackSnapshot.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as Article)
+      );
+
+      const merged = mergeAndSortArticles(articles, fallbackArticles, pageSize);
+      const newLastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
+      return { articles: merged, lastDoc: newLastDoc };
+    }
+
     const newLastDoc = snapshot.docs[snapshot.docs.length - 1] || null;
     return { articles, lastDoc: newLastDoc };
   } catch (error) {
@@ -269,7 +327,22 @@ export async function getRecentArticles(count = 5): Promise<Article[]> {
       limit(count)
     );
     const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article));
+    const articles = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article));
+
+    if (articles.length < count) {
+      const fallback = query(
+        collection(db, "articles"),
+        where("status", "==", "published"),
+        limit(Math.max(count * 3, 30))
+      );
+      const fallbackSnapshot = await getDocs(fallback);
+      const fallbackArticles = fallbackSnapshot.docs.map(
+        (d) => ({ id: d.id, ...d.data() } as Article)
+      );
+      return mergeAndSortArticles(articles, fallbackArticles, count);
+    }
+
+    return articles;
   } catch (error) {
     if (!isMissingIndexError(error)) throw error;
 

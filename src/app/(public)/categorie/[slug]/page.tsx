@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { getArticlesByCategory, getPopularArticles, getRecentArticles } from "@/services/articleService";
-import { CATEGORIES, getCategoryById, type ArticleCategory } from "@/types";
+import { getCategoryById, type ArticleCategory } from "@/types";
 import ArticleCard from "@/components/common/ArticleCard";
 import Sidebar from "@/components/layout/Sidebar";
 

@@ -186,6 +186,7 @@ export default function ArticleEditor({ article }: ArticleEditorProps) {
             <RichTextEditor
               content={form.content}
               onChange={(content) => update("content", content)}
+              articleSlug={form.slug}
             />
           </div>
 

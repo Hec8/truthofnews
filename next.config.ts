@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 const nextConfig: NextConfig = {
   images: {
+    // En local, évite les erreurs 500 _next/image quand la connexion
+    // vers Cloudinary est lente ou indisponible.
+    unoptimized: isDev,
     remotePatterns: [
       {
         protocol: "https",

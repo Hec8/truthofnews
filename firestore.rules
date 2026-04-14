@@ -42,12 +42,30 @@ service cloud.firestore {
         request.resource.data.title.size() >= 3 &&
         request.resource.data.status in ['draft', 'published'];
 
-      // Modification : admin, ou incrément public sécurisé des vues
+      // Modification : admin, incrément public sécurisé des vues,
+      // ou mise à jour sécurisée du compteur de commentaires
       allow update: if isAdmin() || (
         resource.data.status == 'published' &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['viewCount']) &&
         request.resource.data.viewCount is int &&
         request.resource.data.viewCount == resource.data.viewCount + 1
+      ) || (
+        isAuthenticated() &&
+        resource.data.status == 'published' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['commentCount']) &&
+        request.resource.data.commentCount is int &&
+        (
+          (
+            !('commentCount' in resource.data) &&
+            request.resource.data.commentCount == 1
+          ) || (
+            resource.data.commentCount is int &&
+            (
+              request.resource.data.commentCount == resource.data.commentCount + 1 ||
+              request.resource.data.commentCount == resource.data.commentCount - 1
+            )
+          )
+        )
       );
 
       // Suppression : admin uniquement
