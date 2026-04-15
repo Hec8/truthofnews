@@ -321,43 +321,18 @@ export async function getPopularArticles(count = 5): Promise<Article[]> {
 
 // ─── Articles récents ─────────────────────────────────────
 export async function getRecentArticles(count = 5): Promise<Article[]> {
-  try {
-    const q = query(
-      collection(db, "articles"),
-      where("status", "==", "published"),
-      orderBy("publishedAt", "desc"),
-      limit(count)
-    );
-    const snapshot = await getDocs(q);
-    const articles = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article));
-
-    // Fusionne systématiquement avec un fallback sans orderBy pour inclure
-    // les documents publiés sans publishedAt.
-    const fallback = query(
-      collection(db, "articles"),
-      where("status", "==", "published"),
-      limit(Math.max(count * 3, 30))
-    );
-    const fallbackSnapshot = await getDocs(fallback);
-    const fallbackArticles = fallbackSnapshot.docs.map(
-      (d) => ({ id: d.id, ...d.data() } as Article)
-    );
-
-    return mergeAndSortArticles(articles, fallbackArticles, count);
-  } catch (error) {
-    if (!isMissingIndexError(error)) throw error;
-
-    const fallbackLimit = Math.max(count * 3, 30);
-    const fallback = query(
-      collection(db, "articles"),
-      where("status", "==", "published"),
-      limit(fallbackLimit)
-    );
-    const snapshot = await getDocs(fallback);
-    return sortByPublishedOrCreatedDesc(
-      snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article))
-    ).slice(0, count);
-  }
+  // Approche déterministe sans dépendre de l'index composé
+  // pour l'affichage "à la une" de la page d'accueil.
+  const sampleSize = Math.max(count * 10, 100);
+  const q = query(
+    collection(db, "articles"),
+    where("status", "==", "published"),
+    limit(sampleSize)
+  );
+  const snapshot = await getDocs(q);
+  return sortByPublishedOrCreatedDesc(
+    snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article))
+  ).slice(0, count);
 }
 
 // ─── Tous les articles (admin) ────────────────────────────
