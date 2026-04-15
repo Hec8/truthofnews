@@ -169,9 +169,9 @@ export async function getPublishedArticles(
       );
       return { articles: fallbackArticles, lastDoc: null };
     }
-    // Certains anciens articles publiés peuvent ne pas avoir publishedAt
+    // Certains articles publiés peuvent ne pas avoir publishedAt
     // et être exclus de orderBy("publishedAt").
-    if (!lastDoc && articles.length < pageSize) {
+    if (!lastDoc) {
       const fallback = query(
         collection(db, "articles"),
         where("status", "==", "published"),
@@ -254,7 +254,7 @@ export async function getArticlesByCategory(
       );
       return { articles: fallbackArticles, lastDoc: null };
     }
-    if (!lastDoc && articles.length < pageSize) {
+    if (!lastDoc) {
       const fallback = query(
         collection(db, "articles"),
         where("status", "==", "published"),
@@ -329,20 +329,19 @@ export async function getRecentArticles(count = 5): Promise<Article[]> {
     const snapshot = await getDocs(q);
     const articles = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article));
 
-    if (articles.length < count) {
-      const fallback = query(
-        collection(db, "articles"),
-        where("status", "==", "published"),
-        limit(Math.max(count * 3, 30))
-      );
-      const fallbackSnapshot = await getDocs(fallback);
-      const fallbackArticles = fallbackSnapshot.docs.map(
-        (d) => ({ id: d.id, ...d.data() } as Article)
-      );
-      return mergeAndSortArticles(articles, fallbackArticles, count);
-    }
+    // Fusionne systématiquement avec un fallback sans orderBy pour inclure
+    // les documents publiés sans publishedAt.
+    const fallback = query(
+      collection(db, "articles"),
+      where("status", "==", "published"),
+      limit(Math.max(count * 3, 30))
+    );
+    const fallbackSnapshot = await getDocs(fallback);
+    const fallbackArticles = fallbackSnapshot.docs.map(
+      (d) => ({ id: d.id, ...d.data() } as Article)
+    );
 
-    return articles;
+    return mergeAndSortArticles(articles, fallbackArticles, count);
   } catch (error) {
     if (!isMissingIndexError(error)) throw error;
 
