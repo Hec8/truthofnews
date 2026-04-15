@@ -192,15 +192,16 @@ export async function getPublishedArticles(
   } catch (error) {
     if (!isMissingIndexError(error)) throw error;
 
+    const fallbackLimit = Math.max(pageSize * 3, 30);
     const fallback = query(
       collection(db, "articles"),
       where("status", "==", "published"),
-      limit(pageSize)
+      limit(fallbackLimit)
     );
     const snapshot = await getDocs(fallback);
     const articles = sortByPublishedOrCreatedDesc(
       snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article))
-    );
+    ).slice(0, pageSize);
 
     return { articles, lastDoc: null };
   }
@@ -276,16 +277,17 @@ export async function getArticlesByCategory(
   } catch (error) {
     if (!isMissingIndexError(error)) throw error;
 
+    const fallbackLimit = Math.max(pageSize * 3, 30);
     const fallback = query(
       collection(db, "articles"),
       where("status", "==", "published"),
       categoryFilter,
-      limit(pageSize)
+      limit(fallbackLimit)
     );
     const snapshot = await getDocs(fallback);
     const articles = sortByPublishedOrCreatedDesc(
       snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article))
-    );
+    ).slice(0, pageSize);
 
     return { articles, lastDoc: null };
   }
@@ -345,15 +347,16 @@ export async function getRecentArticles(count = 5): Promise<Article[]> {
   } catch (error) {
     if (!isMissingIndexError(error)) throw error;
 
+    const fallbackLimit = Math.max(count * 3, 30);
     const fallback = query(
       collection(db, "articles"),
       where("status", "==", "published"),
-      limit(count)
+      limit(fallbackLimit)
     );
     const snapshot = await getDocs(fallback);
     return sortByPublishedOrCreatedDesc(
       snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Article))
-    );
+    ).slice(0, count);
   }
 }
 
